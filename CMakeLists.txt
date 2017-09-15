@@ -20,7 +20,8 @@ find_package(catkin REQUIRED COMPONENTS
   find_package(Protobuf REQUIRED)
   message("using protoc: ${PROTOBUF_PROTOC_EXECUTABLE}")
   protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${CMAKE_CURRENT_SOURCE_DIR}/proto/Bar.proto)
-
+  protobuf_generate_python(PROTO_PY ${CMAKE_CURRENT_SOURCE_DIR}/proto/Bar.proto)
+  message("proto py: ${PROTO_PY}")
   add_library(bar_proto STATIC ${PROTO_SRCS} ${PROTO_HDRS})
 
   # define executable using MyMessage1 etc.

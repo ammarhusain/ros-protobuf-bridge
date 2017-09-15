@@ -28,16 +28,22 @@ int main(int argc, char **argv)
     // chatter_pub.publish(obj);
 
     prot.set_page_number(count);
+    for (int i = 0; i < count; i++) {
+      prot.add_some_strings("foo_string");
+    }
     prot.SerializeToString(&ser);
-    ROS_INFO("Bar: %s", ser.c_str());
 
     d_prot.ParseFromString(ser);
     ROS_INFO("Bar: %d", d_prot.page_number());
     chatter_pub.publish(d_prot);
+
+    prot.clear_some_strings();
+
     ros::spinOnce();
 
     loop_rate.sleep();
     ++count;
+    count = count % 15;
   }
 
 

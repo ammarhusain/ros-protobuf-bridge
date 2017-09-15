@@ -9,7 +9,10 @@ void chatterCallback(const ros_protobuf_bridge::Foo& msg)
 
 void chatterCallbackBar(const ros_protobuf_bridge::Bar& msg)
 {
-  ROS_INFO("I heard: [%d]", msg.page_number());
+  ROS_INFO("I heard: [%d] with %d string", msg.page_number(), msg.some_strings_size());
+  for (int i = 0; i < msg.some_strings_size(); ++i) {
+    ROS_INFO("%s", msg.some_strings(i).c_str());
+  }
 }
 
 int main(int argc, char **argv)
