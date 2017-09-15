@@ -5,5 +5,5 @@ package ros_protobuf_bridge;
 message Bar {
   //int32 page_number = 1;
   repeated string some_strings = 2;
-    float new_field = 3;
+  float new_field = 3;
 }

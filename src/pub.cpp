@@ -1,6 +1,6 @@
 #include "ros/ros.h"
 #include "ros_protobuf_bridge/Foo.h"
-#include "Bar_ros.h"
+#include "Bar.ros.h"
 
 #include <string>
 

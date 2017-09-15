@@ -2,6 +2,30 @@ cmake_minimum_required(VERSION 3.0)
 
 project(ros_protobuf_bridge)
 
+function(GENERATE_ROS_PROTO_BRIDGE HDRS)
+  set(PROTOBUF_ROS_EXECUTABLE "${PROJECT_SOURCE_DIR}/gen/Protobuf_ROSmsgGen.py")
+  foreach(FIL ${ARGN})
+    get_filename_component(ABS_FIL ${FIL} ABSOLUTE)
+    get_filename_component(FIL_WE ${FIL} NAME_WE)
+    list(APPEND ${HDRS} "${CMAKE_CURRENT_BINARY_DIR}/${FIL_WE}.ros.h")
+    add_custom_command(
+      OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${FIL_WE}.ros.h"
+      COMMAND  ${PROTOBUF_ROS_EXECUTABLE}
+      ARGS ${ABS_FIL}
+      DEPENDS ${ABS_FIL} ${PROTOBUF_ROS_EXECUTABLE}
+      COMMENT "Running protocol buffer ROS bridge generator on ${FIL}"
+      VERBATIM )
+    add_custom_target(ros_proto_${FIL_WE}
+      ALL
+      DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${FIL_WE}.ros.h"
+      COMMENT "Checking if ROS Proto bridge regeneration required for: ${FIL}")
+  endforeach()
+
+  set_source_files_properties(${${HDRS}} PROPERTIES GENERATED TRUE)
+  set(${HDRS} ${${HDRS}} PARENT_SCOPE)
+endfunction()
+
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rosbag
@@ -21,7 +45,12 @@ find_package(catkin REQUIRED COMPONENTS
   message("using protoc: ${PROTOBUF_PROTOC_EXECUTABLE}")
   protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${CMAKE_CURRENT_SOURCE_DIR}/proto/Bar.proto)
   protobuf_generate_python(PROTO_PY ${CMAKE_CURRENT_SOURCE_DIR}/proto/Bar.proto)
+
+  # generate ROS Proto bridge
+  generate_ros_proto_bridge(ROS_HDRS ${CMAKE_CURRENT_SOURCE_DIR}/proto/Bar.proto)
+  message("ros bridge hdrs: ${ROS_HDRS}")
   message("proto py: ${PROTO_PY}")
+
   add_library(bar_proto STATIC ${PROTO_SRCS} ${PROTO_HDRS})
 
   # define publisher

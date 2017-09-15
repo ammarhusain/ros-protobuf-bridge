@@ -115,7 +115,6 @@ def WriteClassTraits(s, pkg_name, class_name):
     WriteDataTypeTrait(s, pkg_name, class_name)
     WriteDefinitionTrait(s, pkg_name, class_name)
     Out(s,"}  // namespace message_traits")
-    Out(s,"namespace serialization {\n")
     WriteSerializationTrait(s, pkg_name, class_name)
 
 def GenerateCppHeader(proto_file_full):
@@ -156,8 +155,8 @@ def GenerateCppHeader(proto_file_full):
     Out(s,"#pragma once\n")
 
     Out(s,"#include <{:s}.pb.h>".format(file_name))
-    Out(s,"#include <ros/message_traits>")
-    Out(s,"#include <ros/serialization>\n")
+    Out(s,"#include <ros/message_traits.h>")
+    Out(s,"#include <ros/serialization.h>\n")
 
     Out(s,"namespace ros {")
     for c in class_names:
