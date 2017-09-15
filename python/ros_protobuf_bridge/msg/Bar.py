@@ -14,14 +14,14 @@ class Bar(genpy.Message):
   defined in the ROS message IDL, though would look something like uint8[]
   serialized_data
   """
-    __slots__ = ['bar_data']
-    _slot_types = ['custom']
+    __slots__ = ['Bar']
+    _slot_types = ['Bar']
 
     def __init__(self, *args, **kwds):
         """
     Constructor.
     """
-        self.bar_data = Bar_pb2.Bar()
+        self.Bar = Bar_pb2.Bar()
 
     def _get_types(self):
         """
@@ -35,7 +35,7 @@ class Bar(genpy.Message):
     :param buff: buffer, ``StringIO``
     """
         try:
-            buff = self.bar_data.SerializeToString()
+            buff = self.Bar.SerializeToString()
         except struct.error as se:
             self._check_types(
                 struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get(
@@ -50,11 +50,9 @@ class Bar(genpy.Message):
     unpack serialized message in str into this message instance
     :param str: byte array of serialized message, ``str``
     """
-        print 'Called deserialize'
         try:
-            self.bar_data = Bar_pb2.Bar()
-            self.bar_data.ParseFromString(str)
-            print self.bar_data
+            self.Bar = Bar_pb2.Bar()
+            self.Bar.ParseFromString(str)
             return self
         except struct.error as e:
             raise genpy.DeserializationError(e)  # Most likely buffer underfill
