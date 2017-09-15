@@ -27,14 +27,14 @@ int main(int argc, char **argv)
     ROS_INFO("%d", obj.a);
     // chatter_pub.publish(obj);
 
-    prot.set_page_number(count);
+    // prot.set_page_number(count);
     for (int i = 0; i < count; i++) {
       prot.add_some_strings("foo_string");
     }
     prot.SerializeToString(&ser);
 
     d_prot.ParseFromString(ser);
-    ROS_INFO("Bar: %d", d_prot.page_number());
+    // ROS_INFO("Bar: %d", d_prot.page_number());
     chatter_pub.publish(d_prot);
 
     prot.clear_some_strings();
