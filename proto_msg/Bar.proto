@@ -7,3 +7,9 @@ message Bar {
   repeated string some_strings = 2;
   float new_field = 3;
 }
+
+
+message FooBar {
+   int32 a = 1;
+   Bar b = 2;
+}
