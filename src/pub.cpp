@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "Bar.ros.h"
+#include <ros_protobuf_bridge/Bar.ros.h>
 
 #include <string>
 

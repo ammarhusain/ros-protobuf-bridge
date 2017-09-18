@@ -1,4 +1,4 @@
-#include "Bar.ros.h"
+#include <ros_protobuf_bridge/Bar.ros.h>
 #include "ros/ros.h"
 
 void chatterCallbackBar(const ros_protobuf_bridge::Bar &msg) {

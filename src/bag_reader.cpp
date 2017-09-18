@@ -1,6 +1,6 @@
-#include "Bar_ros.h"
 #include <algorithm>
 #include <boost/foreach.hpp>
+#include <ros_protobuf_bridge/Bar.ros.h>
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 #define foreach BOOST_FOREACH
@@ -17,10 +17,11 @@ int main() {
   foreach (rosbag::MessageInstance const m, view) {
     boost::shared_ptr<ros_protobuf_bridge::Bar> s =
         m.instantiate<ros_protobuf_bridge::Bar>();
-    if (s != NULL)
+    if (s != NULL) {
       std::cout << s->some_strings_size() << std::endl;
-    for (int i = 0; i < s->some_strings_size(); ++i) {
-      std::cout << s->some_strings(i) << std::endl;
+      for (int i = 0; i < s->some_strings_size(); ++i) {
+        std::cout << s->some_strings(i) << std::endl;
+      }
     }
   }
 
