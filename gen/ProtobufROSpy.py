@@ -13,14 +13,6 @@ except ImportError:
 def WritePyClass(s, proto_file_name, pkg_name, class_name):
     checksum = hashlib.md5("%s::%s" %(pkg_name, class_name)).hexdigest()
     py = """
-#! /usr/bin/python
-
-import @PROTO_PY@_pb2
-import sys
-import genpy
-import struct
-python3 = True if sys.hexversion > 0x03000000 else False
-
 class @Class@(genpy.Message):
   _md5sum = "@Checksum@"
   _type = "@Package@/@Class@"
@@ -50,7 +42,6 @@ class @Class@(genpy.Message):
     try:
       self.@Class@ = @Class@_pb2.@Class@()
       self.@Class@.ParseFromString(str)
-      print 'deserialized @Class@: %s'%str
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e)  # Most likely buffer underfill
@@ -62,7 +53,6 @@ class @Class@(genpy.Message):
     self.deserialize(str)
     return self
     """
-    py = py.replace("@PROTO_PY@", proto_file_name)
     py = py.replace("@Checksum@", checksum)
     py = py.replace("@Class@", class_name)
     py = py.replace("@Package@", pkg_name)
@@ -83,23 +73,36 @@ def GeneratePyHeader(proto_file_name, pkg_name, class_names):
     with open(init_file, 'w') as f:
         f.write(s.getvalue())
     init_file = 'proto_ros/python/%s/msg/__init__.py'%pkg_name
-    for c in class_names:
-        s.write('from .%s import *\n'%c)
-    with open(init_file, 'w') as f:
+    # for c in class_names:
+    #     s.write('from .%s import *\n'%c)
+    s.write('from .%s import *\n'%proto_file_name)
+    with open(init_file, 'a') as f:
         f.write(s.getvalue())
 
+    s = StringIO()
+    py = """
+#! /usr/bin/python
+
+import @PROTO_PY@_pb2
+import sys
+import genpy
+import struct
+python3 = True if sys.hexversion > 0x03000000 else False
+    """
+    py = py.replace("@PROTO_PY@", proto_file_name)
+    s.write(py);
+
     for c in class_names:
-        s = StringIO()
-        print c
         WritePyClass(s, proto_file_name, pkg_name, c)
-        # write out class in pkg_name/msg directory
-        # write code-gen only if different from build artifact
-        header_file_name = 'proto_ros/python/%s/msg/%s.py' %(pkg_name, c)
-        is_diff = True
-        if os.path.isfile(header_file_name):
-            with open(header_file_name, 'r') as f:
-                is_diff = f.read() != s.getvalue()
-        if is_diff:
-            with open(header_file_name, 'w') as f:
-                f.write(s.getvalue())
-        s.close()
+
+    # write out class in pkg_name/msg directory
+    # write code-gen only if different from build artifact
+    header_file_name = 'proto_ros/python/%s/msg/%s.py' %(pkg_name, proto_file_name)
+    is_diff = True
+    if os.path.isfile(header_file_name):
+        with open(header_file_name, 'r') as f:
+            is_diff = f.read() != s.getvalue()
+    if is_diff:
+        with open(header_file_name, 'w') as f:
+            f.write(s.getvalue())
+    s.close()

@@ -3,13 +3,12 @@ syntax = "proto3";
 package ros_protobuf_bridge;
 
 message Bar {
-  //int32 page_number = 1;
-  repeated string some_strings = 2;
-  float new_field = 3;
+   int32 a = 1;
+   repeated string some_strings = 3;
+   KeyVal kv = 4;
 }
 
-
-message FooBar {
-   int32 a = 1;
-   Bar b = 2;
+message KeyVal {
+string key = 1;
+double val = 2;
 }

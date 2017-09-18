@@ -1,15 +1,16 @@
-#include <ros_protobuf_bridge/Bar.ros.h>
+#include <ros_protobuf_bridge/BarPlus.ros.h>
 #include "ros/ros.h"
 
-void chatterCallbackBar(const ros_protobuf_bridge::Bar &msg) {
-  ROS_INFO("I heard: [%d] with %d string", 1, msg.some_strings_size());
-  for (int i = 0; i < msg.some_strings_size(); ++i) {
-    ROS_INFO("%s", msg.some_strings(i).c_str());
-  }
-}
+// void chatterCallbackBar(const ros_protobuf_bridge::Bar &msg) {
+//   ROS_INFO("I heard: [%d] with %d string", 1, msg.some_strings_size());
+//   for (int i = 0; i < msg.some_strings_size(); ++i) {
+//     ROS_INFO("%s", msg.some_strings(i).c_str());
+//   }
+// }
 
-void chatterCallbackFooBar(const ros_protobuf_bridge::FooBar &msg) {
-  return chatterCallbackBar(msg.b());
+void chatterCallbackFooBar(const ros_protobuf_bridge::BarPlus &msg) {
+    ROS_INFO("I heard: [%d] with %d string", 1, msg.b().some_strings_size());
+    //return chatterCallbackBar(msg.b());
 }
 
 int main(int argc, char **argv) {

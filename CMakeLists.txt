@@ -49,7 +49,7 @@ generate_messages(DEPENDENCIES)
 
 find_package(Protobuf REQUIRED)
 # generate ROS Proto bridge
-generate_ros_proto_bridge(MSG_HDRS MSG_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/proto_msg/Bar.proto)
+generate_ros_proto_bridge(MSG_HDRS MSG_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/proto_msg/Bar.proto ${CMAKE_CURRENT_SOURCE_DIR}/proto_msg/BarPlus.proto)
 add_library(bar_proto STATIC ${MSG_SRCS} ${MSG_HDRS})
 target_include_directories(bar_proto PUBLIC ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/proto_ros/cpp)
 target_link_libraries(bar_proto  ${PROTOBUF_LIBRARIES})
