@@ -27,21 +27,10 @@ if __name__ == '__main__':
         proto_file = sys.argv[1]
         file_w_extension = ntpath.basename(proto_file)
         proto_file_name = ntpath.splitext(file_w_extension)[0]
-        file = open(proto_file, "r")
-        proto_schema = file.read()
-        entries = re.split("[\r\n;]+", proto_schema)
-        res = ("package" in e for e in entries)
-        pkg_x = [x.split()[1] for x in entries if "package" in x]
-        # make sure that package name exists
-        if (len(pkg_x) != 1):
-            ThrowCompilationError("Must specify a package name")
-        pkg_name = pkg_x[0]
-        # make sure its not a nested package name ... Not supported for now
-        if [dot for dot in pkg_name if "." in dot]:
-            ThrowCompilationError("Nested package names not supported")
-        # now get all the class names
-        class_names = [x.split()[1] for x in entries if "message" in x]
+        mod = __import__("%s"%proto_file_name)
+        pkg_name = mod.DESCRIPTOR.package
+        class_names = list(mod.DESCRIPTOR.message_types_by_name)
 
+        GeneratePyHeader(proto_file_name.replace("_pb2", ""), pkg_name, class_names)
         # create a cpp header
-        GenerateCppHeader(proto_file_name, pkg_name, class_names)
-        GeneratePyHeader(proto_file_name, pkg_name, class_names)
+        GenerateCppHeader(proto_file_name.replace("_pb2", ""), pkg_name, class_names)

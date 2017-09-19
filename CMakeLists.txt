@@ -2,33 +2,24 @@ cmake_minimum_required(VERSION 3.0)
 
 project(ros_protobuf_bridge)
 
-function(GENERATE_ROS_PROTO_BRIDGE HDRS SRCS)
-  protobuf_generate_cpp(MSG_SRCS MSG_HDRS ${ARGN})
-  list(APPEND ${HDRS} ${MSG_HDRS})
-  list(APPEND ${SRCS} ${MSG_SRCS})
-  protobuf_generate_python(PROTO_PY ${ARGN})
+function(GENERATE_ROS_PROTO_BRIDGE)
   set(PROTOBUF_ROS_EXECUTABLE "${PROJECT_SOURCE_DIR}/gen/Protobuf_ROSmsgGen.py")
+  message("py proto: ${ARGN}")
   foreach(FIL ${ARGN})
     get_filename_component(ABS_FIL ${FIL} ABSOLUTE)
     get_filename_component(FIL_WE ${FIL} NAME_WE)
-    set (CPP_HDR "${CMAKE_CURRENT_BINARY_DIR}/proto_ros/cpp/${FIL_WE}.ros.h")
-    list(APPEND ${HDRS} ${CPP_HDR})
+    add_custom_target(ros_proto_${FIL_WE} ALL
+      DEPENDS ${PROTO_PY})
+
     add_custom_command(
-      OUTPUT ${CPP_HDR}
+      TARGET ros_proto_${FIL_WE}
+      #PRE_BUILD
       COMMAND  ${PROTOBUF_ROS_EXECUTABLE}
-      ARGS ${ABS_FIL}
+      ARGS ${FIL_WE}
       DEPENDS ${ABS_FIL} ${PROTOBUF_ROS_EXECUTABLE}
       COMMENT "Running protocol buffer ROS bridge generator on ${FIL}"
       VERBATIM )
-    add_custom_target(ros_proto_${FIL_WE}
-      ALL
-      DEPENDS ${CPP_HDR}
-      COMMENT "Checking if ROS Proto bridge regeneration required for: ${FIL}")
   endforeach()
-
-  set_source_files_properties(${${SRCS}} ${${HDRS}} PROPERTIES GENERATED TRUE)
-  set(${SRCS} ${${SRCS}} PARENT_SCOPE)
-  set(${HDRS} ${${HDRS}} PARENT_SCOPE)
 endfunction()
 
 
@@ -48,9 +39,17 @@ add_message_files(FILES
 generate_messages(DEPENDENCIES)
 
 find_package(Protobuf REQUIRED)
+# generate protobuf
+list(APPEND PROTO_MSGS "${CMAKE_CURRENT_SOURCE_DIR}/proto_msg/Bar.proto")
+list(APPEND PROTO_MSGS "${CMAKE_CURRENT_SOURCE_DIR}/proto_msg/BarPlus.proto")
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_MSGS})
+list(APPEND ${HDRS} ${PROTO_HDRS})
+list(APPEND ${SRCS} ${PROTO_SRCS})
+protobuf_generate_python(PROTO_PY ${PROTO_MSGS})
+
 # generate ROS Proto bridge
-generate_ros_proto_bridge(MSG_HDRS MSG_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/proto_msg/Bar.proto ${CMAKE_CURRENT_SOURCE_DIR}/proto_msg/BarPlus.proto)
-add_library(bar_proto STATIC ${MSG_SRCS} ${MSG_HDRS})
+generate_ros_proto_bridge(${PROTO_PY})
+add_library(bar_proto STATIC ${PROTO_SRCS} ${PROTO_HDRS})
 target_include_directories(bar_proto PUBLIC ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/proto_ros/cpp)
 target_link_libraries(bar_proto  ${PROTOBUF_LIBRARIES})
 

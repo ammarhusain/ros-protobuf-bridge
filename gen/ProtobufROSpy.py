@@ -22,7 +22,7 @@ class @Class@(genpy.Message):
   _slot_types = ['@Class@']
 
   def __init__(self, *args, **kwds):
-    self.@Class@ = @Class@_pb2.@Class@()
+    self.@Class@ = @PROTO_PY@.@Class@()
   def _get_types(self):
     return self._slot_types
 
@@ -40,7 +40,7 @@ class @Class@(genpy.Message):
 
   def deserialize(self, str):
     try:
-      self.@Class@ = @Class@_pb2.@Class@()
+      self.@Class@ = @PROTO_PY@.@Class@()
       self.@Class@.ParseFromString(str)
       return self
     except struct.error as e:
@@ -53,6 +53,7 @@ class @Class@(genpy.Message):
     self.deserialize(str)
     return self
     """
+    py = py.replace("@PROTO_PY@", proto_file_name + "_pb2")
     py = py.replace("@Checksum@", checksum)
     py = py.replace("@Class@", class_name)
     py = py.replace("@Package@", pkg_name)
@@ -83,13 +84,13 @@ def GeneratePyHeader(proto_file_name, pkg_name, class_names):
     py = """
 #! /usr/bin/python
 
-import @PROTO_PY@_pb2
+import @PROTO_PY@
 import sys
 import genpy
 import struct
 python3 = True if sys.hexversion > 0x03000000 else False
     """
-    py = py.replace("@PROTO_PY@", proto_file_name)
+    py = py.replace("@PROTO_PY@", proto_file_name + "_pb2")
     s.write(py);
 
     for c in class_names:
