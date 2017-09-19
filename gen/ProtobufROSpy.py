@@ -65,21 +65,6 @@ def GeneratePyHeader(proto_file_name, pkg_name, class_names):
     Umbrella function that generates the entire header implementing ROS msg traits
     :return:
     """
-    # write out the generated header in the pkg_name directory for include namespacing
-    if not os.path.exists('proto_ros/python/%s/msg' %pkg_name):
-        os.makedirs('proto_ros/python/%s/msg' %pkg_name)
-    # write out __init__ files.
-    s = StringIO()
-    init_file = 'proto_ros/python/%s/__init__.py'%pkg_name
-    with open(init_file, 'w') as f:
-        f.write(s.getvalue())
-    init_file = 'proto_ros/python/%s/msg/__init__.py'%pkg_name
-    # for c in class_names:
-    #     s.write('from .%s import *\n'%c)
-    s.write('from .%s import *\n'%proto_file_name)
-    with open(init_file, 'a') as f:
-        f.write(s.getvalue())
-
     s = StringIO()
     py = """
 #! /usr/bin/python
@@ -96,14 +81,6 @@ python3 = True if sys.hexversion > 0x03000000 else False
     for c in class_names:
         WritePyClass(s, proto_file_name, pkg_name, c)
 
-    # write out class in pkg_name/msg directory
-    # write code-gen only if different from build artifact
-    header_file_name = 'proto_ros/python/%s/msg/%s.py' %(pkg_name, proto_file_name)
-    is_diff = True
-    if os.path.isfile(header_file_name):
-        with open(header_file_name, 'r') as f:
-            is_diff = f.read() != s.getvalue()
-    if is_diff:
-        with open(header_file_name, 'w') as f:
-            f.write(s.getvalue())
+    py_header = s.getvalue()
     s.close()
+    return py_header

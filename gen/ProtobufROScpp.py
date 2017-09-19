@@ -11,9 +11,6 @@ try:
 except ImportError:
     from io import StringIO  # Python 3.x
 
-def Out(s, str):
-    s.write("%s\n"%str)
-
 def WriteChecksumTrait(s, pkg_name, class_name):
     checksum = hashlib.md5("%s::%s" %(pkg_name, class_name)).hexdigest()
     cpp = """
@@ -103,11 +100,11 @@ def WriteSerializationTrait(s, pkg_name, class_name):
     s.write(cpp)
 
 def WriteClassTraits(s, pkg_name, class_name):
-    Out(s,"namespace message_traits {\n")
+    s.write("namespace message_traits {\n")
     WriteChecksumTrait(s, pkg_name, class_name)
     WriteDataTypeTrait(s, pkg_name, class_name)
     WriteDefinitionTrait(s, pkg_name, class_name)
-    Out(s,"}  // namespace message_traits")
+    s.write("}  // namespace message_traits\n")
     WriteSerializationTrait(s, pkg_name, class_name)
 
 def GenerateCppHeader(proto_file_name, pkg_name, class_names):
@@ -136,17 +133,8 @@ def GenerateCppHeader(proto_file_name, pkg_name, class_names):
 
     for c in class_names:
         WriteClassTraits(s, pkg_name, c)
-    Out(s,"}  // namespace ros")
-    # write code-gen only if different from build artifact
-    header_file_name = 'proto_ros/cpp/%s/%s.ros.h' %(pkg_name, proto_file_name)
-    is_diff = True
-    # write out the generated header in the pkg_name directory for include namespacing
-    if not os.path.exists('proto_ros/cpp/%s'%pkg_name):
-        os.makedirs('proto_ros/cpp/%s'%pkg_name)
-    if os.path.isfile(header_file_name):
-        with open(header_file_name, 'r') as f:
-            is_diff = f.read() != s.getvalue()
-    if is_diff:
-        with open(header_file_name, 'w') as f:
-            f.write(s.getvalue())
+    s.write("}  // namespace ros\n")
+
+    cpp_header = s.getvalue()
     s.close()
+    return cpp_header

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package ros_protobuf_bridge;
+package ros_protobuf_bridge_init;
 
 message Bar {
    int32 a = 1;

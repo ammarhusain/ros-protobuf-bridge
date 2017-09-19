@@ -5,6 +5,6 @@ package ros_protobuf_bridge;
 import "Bar.proto";
 
 message BarPlus {
-  Bar b = 1;
+  ros_protobuf_bridge_init.Bar b = 1;
   float val = 2;
 }
