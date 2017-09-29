@@ -15,7 +15,7 @@ def ThrowCompilationError(error_string):
     :param error_string:
     :return:
     """
-    sys.exit("{0}:1:error Protobuf_ROSmsgGen: {1}\n".format(sys.argv[1], error_string))
+    sys.exit("{0}:1:error ProtobufROSgen: {1}\n".format(sys.argv[1], error_string))
 
 def CreateDirectory(dir_name):
     if not os.path.exists(dir_name):
@@ -28,17 +28,27 @@ def WriteToFile(file_name, file_data):
 
 ################################################
 # Main routine
+# This Python script auto generates a ROS msg interface in C++ & Python that enables users to
+# send Protobuf via ROS comms. It produces a <Proto_file>.ros.h header inside the
+# "<CMAKE_BUILD_DIR>/proto_ros/cpp/<pkg_name>/" directory. This header can be included by
+# ROS nodes to transport the corresponding protobufs over ROS topicsas well as log to
+# ROS bags. It additionally produces a Python interface class inside
+# "<CMAKE_BUILD_DIR>/proto_ros/python/<pkg_name>/msg/". This makes the protobuf inspectible
+# by ROS tools such as "rostopic echo" etc.
+#
+# Note: Make sure "<CMAKE_BUILD_DIR>/proto_ros/python" is set in your PYTHONPATH or install
+# to appropriate Python package locations"
 ################################################
 if __name__ == '__main__':
 
     # get the filename from arguments
     if (len(sys.argv) == 1):
-        print("[Protobuf_ROSmsgGen] Usage: ./Protobuf_ROSmsgGen.py <file_name>.proto")
+        print("[ProtobufROSgen] Usage: ./ProtobufROSgen.py <file_name>.proto")
     else:
         proto_file = sys.argv[1]
         file_w_extension = ntpath.basename(proto_file)
         proto_file_name = ntpath.splitext(file_w_extension)[0]
-        mod = __import__("%s"%proto_file_name)
+        mod = __import__(proto_file_name)
         # extract the package names: . is the delimiter in proto syntax
         pkg_name = mod.DESCRIPTOR.package
         if pkg_name.find(".") != -1:
