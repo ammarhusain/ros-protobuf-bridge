@@ -21,18 +21,16 @@ project(ros_protobuf_bridge)
 # to appropriate Python package locations"
 function(GENERATE_ROS_PROTO_BRIDGE)
   set(PROTOBUF_ROS_EXECUTABLE "${PROJECT_SOURCE_DIR}/gen/ProtobufROSgen.py")
-  message("py proto: ${ARGN}")
   foreach(FIL ${ARGN})
     get_filename_component(ABS_FIL ${FIL} ABSOLUTE)
     get_filename_component(FIL_WE ${FIL} NAME_WE)
     add_custom_target(ros_proto_${FIL_WE} ALL
       DEPENDS ${PROTO_PY})
-
     add_custom_command(
       TARGET ros_proto_${FIL_WE}
       #PRE_BUILD
-      COMMAND  ${PROTOBUF_ROS_EXECUTABLE}
-      ARGS ${FIL_WE}
+      COMMAND ${PROTOBUF_ROS_EXECUTABLE}
+      ARGS ${ABS_FIL}
       DEPENDS ${ABS_FIL} ${PROTOBUF_ROS_EXECUTABLE}
       COMMENT "Running protocol buffer ROS bridge generator on ${FIL}"
       VERBATIM )

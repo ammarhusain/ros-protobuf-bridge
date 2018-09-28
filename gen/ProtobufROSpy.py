@@ -10,7 +10,7 @@ try:
 except ImportError:
     from io import StringIO  # Python 3.x
 
-def WritePyClass(s, proto_file_name, pkg_name, class_name):
+def write_py_class(s, proto_file_name, pkg_name, class_name):
     checksum = hashlib.md5("%s::%s" %(pkg_name, class_name)).hexdigest()
     py = """
 class @Class@(genpy.Message):
@@ -23,6 +23,7 @@ class @Class@(genpy.Message):
 
   def __init__(self, *args, **kwds):
     self.@Class@ = @PROTO_PY@.@Class@()
+
   def _get_types(self):
     return self._slot_types
 
@@ -60,10 +61,17 @@ class @Class@(genpy.Message):
     s.write(py)
 
 
-def GeneratePyHeader(proto_file_name, pkg_name, class_names):
+def generate_py_header(proto_file_name, pkg_name, class_names):
     """
     Umbrella function that generates the entire header implementing ROS msg traits
-    :return:
+
+    Similar to the C++ header, this function produces a Python equivalent class that inherits from genpy.Message.
+    This class is needed to support the ROS python tooling such as 'rostopic echo' etc. The Python
+    class defines the minimum set of member variables & functions that ROS requires. The required member
+    functions are: __init__, _get_types, serialize & deserialize. The serialize & deserialize functions
+    work by transforming a python string and passing it over to the Protobuf Python module for
+    deserializing into a Protobuf Python object and vice versa.
+    This enables a user to seamlessly publish & subscribe Protobuf objects inside ROS nodes.
     """
     s = StringIO()
     py = """
@@ -88,7 +96,7 @@ python3 = True if sys.hexversion > 0x03000000 else False
     s.write(py);
 
     for c in class_names:
-        WritePyClass(s, proto_file_name, pkg_name, c)
+        write_py_class(s, proto_file_name, pkg_name, c)
 
     py_header = s.getvalue()
     s.close()
